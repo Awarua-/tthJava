@@ -130,7 +130,9 @@ public class ThexOptimized
 
         int DataSize = FilePtr.read(LeafA, 0, Leaf_Size);
         //check if leaf is too small.
-        if (DataSize < Leaf_Size || FilePtr.getChannel().position() == FilePtr.getChannel().size()) return (LeafHash(ByteExtract(LeafA, DataSize)));
+        if (DataSize < Leaf_Size || FilePtr.getChannel().position() == FilePtr.getChannel().size()) {
+            return (LeafHash(ByteExtract(LeafA, DataSize)));
+        }
 
         DataSize = FilePtr.read(LeafB,0,Leaf_Size);
 
@@ -195,7 +197,7 @@ public class ThexOptimized
 
         //combines two leafs.
         for (int i = 0; i < LeafA.length; i++) {
-            Data[i + 1] = LeafA[1];
+            Data[i + 1] = LeafA[i];
         }
         for (int i = 0; i < LeafB.length; i++) {
             Data[LeafA.length + 1 + i] = LeafB[i];
@@ -213,7 +215,7 @@ public class ThexOptimized
 
         Data[0] = 0x00; //leaf hash mark.
         for (int i = 0; i < Raw_Data.length; i++) {
-            Data[i + 1] = Raw_Data[1];
+            Data[i + 1] = Raw_Data[i];
         }
 
         //gets tiger hash value for leafs blocks.
