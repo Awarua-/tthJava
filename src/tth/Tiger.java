@@ -14,13 +14,11 @@ public class Tiger {
     private long c;
 
     private long[] block;
-    private final int BLOCKSIZE = 64;
     private byte[] buf;
 
     private long lLen;
     private int nBufPos;
-    private final int PASSES = 3;
-    protected static long[] T = {
+    protected static final long[] T = {
             192161084409973854L, -6034178070669973268L, 8272369121297300691L, 7854730284916899642L, -3631738584360316525L, 8463286011307239906L, -5664346993730092093L, 5082381371487377520L, -1536603760329757466L, -4232985935611735204L,
             5541490850629862524L, 766444128913191948L, 1204553577021685498L, -4121719295987045526L, 1401289229890216703L, 1893918052108309022L, 5461170853188208586L, 2807403890869420487L, -8822417684582283338L, 5699452412975025298L,
             -2914262034798377397L, -8199292901130911363L, 7624427211800470465L, -5330070367527189138L, 9043806901924967914L, 7231827479902542914L, -4667804575905660192L, 6875646691050945796L, -954047427515838778L, 7786398710221814956L,
@@ -135,14 +133,10 @@ public class Tiger {
     }
 
     public void Compress() {
-        long aa = 0L;
-        long bb = 0L;
-        long[] block = null;
-        long cc = 0L;
-        aa = this.a;
-        bb = this.b;
-        cc = this.c;
-        block = this.block;
+        long aa = this.a;
+        long bb = this.b;
+        long cc = this.c;
+        long[] block = this.block;
         this.RoundABC(block[0], 5);
         this.RoundBCA(block[1], 5);
         this.RoundCAB(block[2], 5);
@@ -175,16 +169,13 @@ public class Tiger {
     }
 
     protected void HashCore(byte[] data, int nStart, int nSize) {
-        byte[] buf = null;
-        int nBufPos = 0;
-        int nEnd = 0;
-        int nToCopy = 0;
+        int nToCopy;
         this.lLen += ((long) nSize);
-        buf = this.buf;
-        nBufPos = this.nBufPos;
-        nEnd = (nStart + nSize);
+        byte[] buf = this.buf;
+        int nBufPos = this.nBufPos;
+        int nEnd = (nStart + nSize);
         while (nStart < nEnd) {
-            nToCopy = ((int) (64 - nBufPos));
+            nToCopy = (64 - nBufPos);
             if (nToCopy > nSize) {
                 nToCopy = nSize;
             }
@@ -204,11 +195,8 @@ public class Tiger {
     }
 
     protected byte[] HashFinal() {
-        byte[] buf = null;
-        int nBufPos = 0;
-        byte[] result = null;
-        nBufPos = this.nBufPos;
-        buf = this.buf;
+        int nBufPos = this.nBufPos;
+        byte[] buf = this.buf;
         buf[nBufPos] = ((byte) 1);
         nBufPos++;
         if (56 <= nBufPos) {
@@ -217,9 +205,9 @@ public class Tiger {
             nBufPos = 0;
         }
         Arrays.fill(buf, nBufPos, nBufPos + ((int) ((64 - nBufPos) - 8)), (byte) 0);
-        Tiger.LongToBytes(((long) (this.lLen << 3)), buf, 56);
+        Tiger.LongToBytes((this.lLen << 3), buf, 56);
         this.ProcessBlock();
-        result = new byte[24];
+        byte[] result = new byte[24];
         Tiger.LongToBytes(this.a, result, 0);
         Tiger.LongToBytes(this.b, result, 8);
         Tiger.LongToBytes(this.c, result, 16);
@@ -235,23 +223,19 @@ public class Tiger {
     }
 
     static void LongToBytes(long lVal, byte[] buf, int nIdx) {
-        int nEnd = 0;
-        nEnd = (nIdx + 8);
+        int nEnd = (nIdx + 8);
         while (nIdx < nEnd) {
             buf[nIdx] = ((byte) (lVal & 255L));
-            lVal = ((long) (lVal >> 8));
+            lVal = (lVal >> 8);
             nIdx++;
         }
     }
 
     public void ProcessBlock() {
-        long[] block = null;
-        byte[] buf = null;
         int nI = 0;
         int nPos = 0;
-        nPos = 0;
-        block = this.block;
-        buf = this.buf;
+        long[] block = this.block;
+        byte[] buf = this.buf;
         while (nPos < 64) {
             block[nI] = ((long) ((((((((((long) buf[(nPos + 7)]) << 56) | ((((long) buf[(nPos + 6)]) & 255L) << 48)) | ((((long) buf[(nPos + 5)]) & 255L) << 40)) | ((((long) buf[(nPos + 4)]) & 255L) << 32)) | ((((long) buf[(nPos + 3)]) & 255L) << 24)) | ((((long) buf[(nPos + 2)]) & 255L) << 16)) | ((((long) buf[(nPos + 1)]) & 255L) << 8)) | (((long) buf[nPos]) & 255L)));
             nPos += 8;
@@ -261,15 +245,10 @@ public class Tiger {
     }
 
     public void RoundABC(long x, int mul) {
-        long c = 0L;
-        int ch = 0;
-        int cl = 0;
-        long[] T = null;
-        T = Tiger.T;
-        c = this.c;
+        long c = this.c;
         c ^= x;
-        ch = ((int) (c >> 32));
-        cl = ((int) c);
+        int ch = ((int) (c >> 32));
+        int cl = ((int) c);
         this.a -= (((T[(cl & 255)] ^ T[((int) (((cl >> 16) & 255) + 256))]) ^ T[((ch & 255) + 512)]) ^ T[((int) (((ch >> 16) & 255) + 768))]);
         this.b += (((T[(((cl >> 8) & 255) + 768)] ^ T[((int) (((cl >> 24) & 255) + 512))]) ^ T[(((ch >> 8) & 255) + 256)]) ^ T[((int) ((ch >> 24) & 255))]);
         this.b *= ((long) mul);
@@ -293,15 +272,10 @@ public class Tiger {
     }
 
     public void RoundCAB(long x, int mul) {
-        long b = 0L;
-        int bh = 0;
-        int bl = 0;
-        long[] T = null;
-        T = Tiger.T;
-        b = this.b;
+        long b = this.b;
         b ^= x;
-        bh = ((int) (b >> 32));
-        bl = ((int) b);
+        int bh = ((int) (b >> 32));
+        int bl = ((int) b);
         this.c -= (((T[(bl & 255)] ^ T[((int) (((bl >> 16) & 255) + 256))]) ^ T[((bh & 255) + 512)]) ^ T[((int) (((bh >> 16) & 255) + 768))]);
         this.a += (((T[(((bl >> 8) & 255) + 768)] ^ T[((int) (((bl >> 24) & 255) + 512))]) ^ T[(((bh >> 8) & 255) + 256)]) ^ T[((int) ((bh >> 24) & 255))]);
         this.a *= ((long) mul);
