@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 
 /**
  * Created by Dion on 2/6/2015.
@@ -243,7 +242,7 @@ public class ThexOptimized
             start = Instant.now();
 
 
-            result = test.GetTTH("D:\\Documents\\47 Ronin 2013 1080p.mkv");
+            result = test.GetTTH(args[0]);
             end = Instant.now();
 
             System.out.println(Base32.encode(result));

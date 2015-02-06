@@ -256,15 +256,10 @@ public class Tiger {
     }
 
     public void RoundBCA(long x, int mul) {
-        long a = 0L;
-        int ah = 0;
-        int al = 0;
-        long[] T = null;
-        T = Tiger.T;
-        a = this.a;
+        long a = this.a;
         a ^= x;
-        ah = ((int) (a >> 32));
-        al = ((int) a);
+        int ah = ((int) (a >> 32));
+        int al = ((int) a);
         this.b -= (((T[(al & 255)] ^ T[((int) (((al >> 16) & 255) + 256))]) ^ T[((ah & 255) + 512)]) ^ T[((int) (((ah >> 16) & 255) + 768))]);
         this.c += (((T[(((al >> 8) & 255) + 768)] ^ T[((int) (((al >> 24) & 255) + 512))]) ^ T[(((ah >> 8) & 255) + 256)]) ^ T[((int) ((ah >> 24) & 255))]);
         this.c *= ((long) mul);
@@ -284,28 +279,27 @@ public class Tiger {
 
     public void Schedule(long[] x) {
         int _Vb_t_i4_0 = 0;
-        _Vb_t_i4_0 = 0;
         x[_Vb_t_i4_0] -= (x[7] ^ -6510615555426900571L);
         x[1] = (x[1] ^ x[0]);
         _Vb_t_i4_0 = 2;
         x[_Vb_t_i4_0] += x[1];
         _Vb_t_i4_0 = 3;
-        x[_Vb_t_i4_0] -= ((long) (x[2] ^ ((~x[1]) << 19)));
+        x[_Vb_t_i4_0] -= (x[2] ^ ((~x[1]) << 19));
         x[4] = (x[4] ^ x[3]);
         _Vb_t_i4_0 = 5;
         x[_Vb_t_i4_0] += x[4];
         _Vb_t_i4_0 = 6;
-        x[_Vb_t_i4_0] -= ((long) (x[5] ^ (((~x[4]) >> 23) & 2199023255551L)));
+        x[_Vb_t_i4_0] -= (x[5] ^ (((~x[4]) >> 23) & 2199023255551L));
         x[7] = (x[7] ^ x[6]);
         _Vb_t_i4_0 = 0;
         x[_Vb_t_i4_0] += x[7];
         _Vb_t_i4_0 = 1;
-        x[_Vb_t_i4_0] -= ((long) (x[0] ^ ((~x[7]) << 19)));
+        x[_Vb_t_i4_0] -= (x[0] ^ ((~x[7]) << 19));
         x[2] = (x[2] ^ x[1]);
         _Vb_t_i4_0 = 3;
         x[_Vb_t_i4_0] += x[2];
         _Vb_t_i4_0 = 4;
-        x[_Vb_t_i4_0] -= ((long) (x[3] ^ (((~x[2]) >> 23) & 2199023255551L)));
+        x[_Vb_t_i4_0] -= (x[3] ^ (((~x[2]) >> 23) & 2199023255551L));
         x[5] = (x[5] ^ x[4]);
         _Vb_t_i4_0 = 6;
         x[_Vb_t_i4_0] += x[5];
