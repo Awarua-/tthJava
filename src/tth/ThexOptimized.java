@@ -243,7 +243,7 @@ public class ThexOptimized
             start = Instant.now();
 
 
-            result = test.GetTTH("D:\\Documents\\47 Ronin 2013 1080p.mkv");
+            result = test.GetTTH("C:\\Users\\Matthew\\Downloads\\Suits.S04E12.HDTV.x264-KILLERS[ettv]\\Suits.S04E12.HDTV.x264-KILLERS.mp4");
             end = Instant.now();
 
             System.out.println(Base32.encode(result));
