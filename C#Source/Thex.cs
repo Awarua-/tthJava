@@ -67,7 +67,7 @@ namespace TTH
                 else
                 {
                     //get how many leafs are in file.
-                    Leaf_Count = (int)(FilePtr.Length / Leaf_Size);
+                    Leaf_Count = (int)FilePtr.Length / Block_Size;
 
                     if (FilePtr.Length % Block_Size > 0)
                         Leaf_Count++;

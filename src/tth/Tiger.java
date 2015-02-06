@@ -228,7 +228,7 @@ public class Tiger {
         return result;
     }
 
-    private void Initialize() {
+    public void Initialize() {
         this.a = 81985529216486895L;
         this.b = -81985529216486896L;
         this.c = -1110518062304271993L;
