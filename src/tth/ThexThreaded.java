@@ -2,63 +2,39 @@ package tth;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
 
 /**
- * Created by Dion on 2/6/2015.
- */
-/*
+ * Java Tiger Tree Hash Threaded
  *
- * Tiger Tree Hash Threaded - by Gil Schmidt.
+ * Based on the C# version by Gil Schmidt, Gil_Smdt@hotmali.com
+ * http://www.codeproject.com/Articles/9336/ThexCS-TTH-tiger-tree-hash-maker-in-C
  *
- *  - this code was writtin based on:
- *    "Tree Hash EXchange format (THEX)"
- *    http://www.open-content.net/specs/draft-jchapweske-thex-02.html
+ * This implementation has a few efficiency improvements and is only limited by the read speed of the disk
+ * that the file is being hashed from.
  *
- *  - the tiger hash class was converted from visual basic code called TigerNet:
- *    http://www.hotpixel.net/software.html
+ * By default the number of threads is 4, increasing it beyond this didn't seem to have any improvements as the
+ * bottleneck becomes the disk read speed.
+ * Although it has not been tested if more threads when using a disk with a read speed above 500mb/s has an
+ * effect on performance.
  *
- *  - Base32 class was taken from:
- *    http://msdn.microsoft.com/msdnmag/issues/04/07/CustomPreferences/default.aspx
- *    didn't want to waste my time on writing a Base32 class.
+ * The program  takes two arguments,
+ * File to hash.
+ * Number of threads (optional), default 4.
  *
- *  - along with the request for a version the return the full TTH tree and the need
- *    for a faster version i rewrote a thread base version of the ThexCS.
- *    i must say that the outcome wasn't as good as i thought it would be.
- *    after writing ThexOptimized i noticed that the major "speed barrier"
- *    was reading the data from the file so i decide to split it into threads
- *    that each one will read the data and will make the computing process shorter.
- *    in testing i found out that small files (about 50 mb) are being processed
- *    faster but in big files (700 mb) it was slower, also the CPU is working better
- *    with more threads.
- *
- *  - the update for the ThexThreaded is now including a Dispose() function to free
- *    some memory which is mostly taken by the TTH array, also i changed the way the
- *    data is pulled out of the file so it would read data block instead of data leaf
- *    every time (reduced the i/o reads dramaticly and go easy on the hd) i used 1 MB
- *    blocks for each thread you can set it at DataBlockSize (put something like:
- *    LeafSize * N). the method for copying bytes is change to Buffer.BlockCopy it's
- *    faster but you won't notice it too much.
- *
- *    (a lot of threads = slower but the cpu is working less, i recommend 3-5 threads)
- *
- * - fixed code for 0 byte file (thanks Flow84).
- *
- *
- *  if you use this code please add my name and email to the references!
- *  [ contact me at Gil_Smdt@hotmali.com ]
+ * @author Dion Woolley, woolley.dion@gmail.com
  */
 
 
 public class ThexThreaded {
     final byte LeafHash = 0x00;
     final byte InternalHash = 0x01;
-    final int LeafSize = 1024;
+    final int LeafSize = 1024; // Do not change this value
     final int DataBlockSize = LeafSize * 1024; // 1 MB
-    final int ThreadCount = 4;
+    int ThreadCount = 4;
     final int ZERO_BYTE_FILE = 0;
 
     public byte[][][] TTH;
@@ -75,11 +51,6 @@ public class ThexThreaded {
         return TTH[LevelCount - 1][0];
     }
 
-    public byte[][][] GetTTH_Tree(String Filename) throws IOException {
-        GetTTH(Filename);
-        return TTH;
-    }
-
     private void GetTTH(String Filename) throws IOException {
         this.Filename = Filename;
 
@@ -88,9 +59,7 @@ public class ThexThreaded {
 
             if (Initialize()) {
                 SplitFile();
-                System.out.println("starting to get TTH: " + new Date().toString());
                 StartThreads();
-                System.out.println("finished to get TTH: " + new Date().toString());
                 CompressTree();
             }
         } catch (Exception e) {
@@ -101,16 +70,7 @@ public class ThexThreaded {
         if (FilePtr != null) FilePtr.close();
     }
 
-    void Dispose() {
-        TTH = null;
-        ThreadsList = null;
-        FileParts = null;
-    }
-
-    void OpenFile() throws Exception {
-        if (!new File(Filename).exists())
-            throw new Exception("file doesn't exists!");
-
+    void OpenFile() throws FileNotFoundException {
         FilePtr = new FileInputStream(Filename); //,DataBlockSize);
     }
 
@@ -159,6 +119,7 @@ public class ThexThreaded {
     }
 
     void StartThreads() throws InterruptedException {
+        boolean ThreadsAreWorking;
         for (int i = 0; i < ThreadCount; i++) {
             ThreadsList[i] = new Thread(() -> {
                 try {
@@ -171,7 +132,6 @@ public class ThexThreaded {
             ThreadsList[i].start();
         }
 
-        boolean ThreadsAreWorking = false;
 
         do {
             Thread.sleep(1000);
@@ -241,9 +201,6 @@ public class ThexThreaded {
                 Data[0] = LeafHash;
             }
         }
-
-        DataBlock = null;
-        Data = null;
     }
 
     void CompressTree() {
@@ -289,23 +246,39 @@ public class ThexThreaded {
     }
 
     public static void main(String[] args) {
-        ThexThreaded test = new ThexThreaded();
+        ThexThreaded thex = new ThexThreaded();
         byte[] result;
         Instant start;
         Instant end;
-        try {
-            start = Instant.now();
+        if (!(args.length < 1) && !args[0].isEmpty()) {
+            if (args.length > 1 && args[1].matches("[0-9]")) {
+                thex.ThreadCount = Integer.valueOf(args[1]);
+            }
+            File file = new File(args[0]);
+            if (file.exists()) {
+                try {
+                    System.out.println("Running with " + String.valueOf(thex.ThreadCount) + " threads");
+                    System.out.println("Start hashing file: " + file.getName());
 
+                    start = Instant.now();
+                    result = thex.GetTTH_Value(args[0]);
+                    end = Instant.now();
 
-            result = test.GetTTH_Value(args[0]);
-            end = Instant.now();
+                    System.out.println("Finished hashing file: " + file.getName());
+                    System.out.println("THH: " + Base32.encode(result));
+                    System.out.println("TimeTaken: " + Duration.between(start, end));
 
-            System.out.println("THH: " + Base32.encode(result));
-            System.out.println("TimeTaken: " + Duration.between(start, end));
-        } catch (IOException e) {
-            e.printStackTrace();
+                } catch (IOException e) {
+                    System.err.println("Something went wrong trying to hash file: " + file.getName());
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("The given file does not exist");
+            }
         }
-
+        else {
+            System.out.println("No file given");
+        }
     }
 }
 

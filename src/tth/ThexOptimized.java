@@ -7,35 +7,17 @@ import java.time.Duration;
 import java.time.Instant;
 
 /**
- * Created by Dion on 2/6/2015.
- */
-
-/*
+ * Java Tiger Tree Hash Optimized
  *
- * Tiger Tree Hash Optimized - by Gil Schmidt.
+ * Based on the C# version by Gil Schmidt, Gil_Smdt@hotmali.com
+ * http://www.codeproject.com/Articles/9336/ThexCS-TTH-tiger-tree-hash-maker-in-C
  *
- *  - this code was writtin based on:
- *    "Tree Hash EXchange format (THEX)"
- *    http://www.open-content.net/specs/draft-jchapweske-thex-02.html
+ * This implementation has a few efficiency improvements
  *
- *  - the tiger hash class was converted from visual basic code called TigerNet:
- *    http://www.hotpixel.net/software.html
+ * The program  takes one argument,
+ * File to hash.
  *
- *  - Base32 class was taken from:
- *    http://msdn.microsoft.com/msdnmag/issues/04/07/CustomPreferences/default.aspx
- *    didn't want to waste my time on writing a Base32 class.
- *
- *  - after making the first working TTH class i noticed that it was very slow,i decided
- *    to improve the code by fixed size ('Block_Size') blocks and compress them into 1 hash
- *    string. (save memory and makes the cpu works a little less in a smaller arrays).
- *
- *  - increase 'Block_Size' for better performance but it will cost you by memory.
- *
- *  - fixed code for 0 byte file (thanks Flow84).
- *
- *  if you use this code please add my name and email to the references!
- *  [ contact me at Gil_Smdt@hotmali.com ]
- *
+ * @author Dion Woolley, woolley.dion@gmail.com
  */
 
 public class ThexOptimized
@@ -81,7 +63,6 @@ public class ThexOptimized
                 if (FilePtr.getChannel().size() % Leaf_Size > 0) Leaf_Count++;
 
                 GetLeafHash(); //get leafs hash from file.
-                System.err.println("===> [ Moving to internal hash. ]");
                 TTH = CompressHashBlock(HashValues, Leaf_Count);	//get root TTH from hash array.
             }
         }
@@ -234,22 +215,35 @@ public class ThexOptimized
     }
 
     public static void main(String[] args) {
-        ThexOptimized test = new ThexOptimized();
+        ThexOptimized thex = new ThexOptimized();
         byte[] result;
         Instant start;
         Instant end;
-        try {
-            start = Instant.now();
+        if (!(args.length < 1) && !args[0].isEmpty()) {
+            File file = new File(args[0]);
+            if (file.exists()) {
+                try {
+                    System.out.println("Start hashing file: " + file.getName());
+                    start = Instant.now();
 
 
-            result = test.GetTTH(args[0]);
-            end = Instant.now();
+                    result = thex.GetTTH(args[0]);
+                    end = Instant.now();
+                    System.out.println("Finished hashing file: " + file.getName());
 
-            System.out.println(Base32.encode(result));
-            System.out.println(Duration.between(start, end));
-        } catch (IOException e) {
-            e.printStackTrace();
+                    System.out.println("THH: " + Base32.encode(result));
+                    System.out.println("TimeTaken: " + Duration.between(start, end));
+
+                } catch (IOException e) {
+                    System.err.println("Something went wrong trying to hash file: " + file.getName());
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("The given file does not exist");
+            }
         }
-
+        else {
+            System.out.println("No file given");
+        }
     }
 }

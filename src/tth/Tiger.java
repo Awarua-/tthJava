@@ -1,14 +1,21 @@
 package tth;
 
 /**
- * Created by Dion on 2/5/2015.
+ * Tiger Hash
+ *
+ * Based on the C# version by Gil Schmidt, Gil_Smdt@hotmali.com
+ * http://www.codeproject.com/Articles/9336/ThexCS-TTH-tiger-tree-hash-maker-in-C
+ *
+ * The tiger hash class was converted from visual basic code called TigerNet:
+ * http://www.hotpixel.net/software.html
+ *
+ * @author Dion Woolley, woolley.dion@gmail.com
  */
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 public class Tiger {
 
-    // what are these variables
     private long a;
     private long b;
     private long c;
@@ -340,12 +347,12 @@ public class Tiger {
         tg.Initialize();
         hash = tg.ComputeHash(TEST_DATA.getBytes("ASCII"));
         if (hash.length != TEST_HASH.length) {
-            System.out.println("FAILED length of hash and test hash is not the same");
+            System.err.println("FAILED length of hash and test hash is not the same");
         }
         _Vb_t_i4_0 = (TEST_HASH.length - 1);
         for (nI = 0; (nI <= _Vb_t_i4_0); nI++) {
             if (hash[nI] != TEST_HASH[nI]) {
-                System.out.println("FAILED hash not the same");
+                System.err.println("FAILED hash not the same");
             }
         }
         System.out.println("Success");
