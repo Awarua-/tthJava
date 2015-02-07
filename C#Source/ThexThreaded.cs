@@ -52,7 +52,7 @@ namespace TTH
 		const byte InternalHash = 0x01;
 		const int  LeafSize = 1024;
 		const int  DataBlockSize = LeafSize * 1024; // 1 MB
-		const int  ThreadCount = 2;
+		const int  ThreadCount = 4;
         const int  ZERO_BYTE_FILE = 0;
 
 		public byte[][][] TTH;
@@ -203,14 +203,15 @@ namespace TTH
 			Tiger TG = new Tiger();
 			byte[] DataBlock;
 			byte[] Data = new byte[LeafSize + 1];
-			int LeafIndex,BlockLeafs;
+            long LeafIndex;
+            int BlockLeafs;
 			int i;
 
 			ThreadFilePtr.Position = ThreadFileBlock.Start;
 			
 			while (ThreadFilePtr.Position < ThreadFileBlock.End)
 			{
-				LeafIndex = (int) ThreadFilePtr.Position / 1024;
+				LeafIndex = ThreadFilePtr.Position / 1024;
 				
 				if (ThreadFileBlock.End - ThreadFilePtr.Position < DataBlockSize)
 					DataBlock = new byte[ThreadFileBlock.End - ThreadFilePtr.Position];
