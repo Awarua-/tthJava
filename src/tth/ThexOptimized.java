@@ -20,8 +20,8 @@ import java.time.Instant;
  * @author Dion Woolley, woolley.dion@gmail.com
  */
 
-public class ThexOptimized
-{
+public class ThexOptimized {
+
     final   int        ZERO_BYTE_FILE  = 0;    //file with no data.
     final   int        Block_Size      = 64;   //64k
     final   int        Leaf_Size       = 1024; //1k - don't change this.
@@ -31,7 +31,7 @@ public class ThexOptimized
     private FileInputStream FilePtr;    //dest file stream pointer.
 
     public byte[] GetTTH(String Filename) throws IOException {
-        byte[] TTH = null;
+        byte[] TTH;
 
         try
         {
@@ -79,19 +79,19 @@ public class ThexOptimized
         return TTH;
     }
 
-    private void GetLeafHash() throws IOException //gets the leafs from the file and hashes them.
-    {
+    private void GetLeafHash() throws IOException {
+        //gets the leafs from the file and hashes them.
         int i;
-        int Blocks_Count = (int) Leaf_Count / (Block_Size * 2);
+        int Blocks_Count = Leaf_Count / (Block_Size * 2);
 
         if (Leaf_Count % (Block_Size * 2) > 0) Blocks_Count++;
         HashValues = new byte[Blocks_Count][];
 
-        byte[][] HashBlock = new byte[(int)Block_Size][];
+        byte[][] HashBlock = new byte[Block_Size][];
 
-        for (i = 0; i < (int) Leaf_Count / (Block_Size * 2); i++) //loops threw the blocks.
+        for (i = 0; i < Leaf_Count / (Block_Size * 2); i++) //loops threw the blocks.
         {
-            for (int LeafIndex = 0; LeafIndex < (int) Block_Size; LeafIndex++) //creates new block.
+            for (int LeafIndex = 0; LeafIndex < Block_Size; LeafIndex++) //creates new block.
                 HashBlock[LeafIndex] = GetNextLeafHash(); //extracts two leafs to a hash.
 
             HashValues[i] = CompressHashBlock(HashBlock,Block_Size); //compresses the block to hash.
@@ -102,8 +102,8 @@ public class ThexOptimized
         Leaf_Count = Blocks_Count;
     }
 
-    private byte[] GetNextLeafHash() throws IOException //reads 2 leafs from the file and returns their combined hash.
-    {
+    private byte[] GetNextLeafHash() throws IOException {
+        //reads 2 leafs from the file and returns their combined hash.
         byte[] LeafA = new byte[Leaf_Size];
         byte[] LeafB = new byte[Leaf_Size];
 
@@ -125,19 +125,18 @@ public class ThexOptimized
         return InternalHash(LeafA,LeafB); //returns combined hash.
     }
 
-    private byte[] CompressHashBlock(byte[][] HashBlock,int HashCount) //compresses hash blocks to hash.
-    {
+    private byte[] CompressHashBlock(byte[][] HashBlock,int HashCount) {
         if (HashBlock.length == 0) return null;
 
         while (HashCount > 1) //until there's only 1 hash.
         {
-            int TempBlockSize = (int) HashCount / 2;
+            int TempBlockSize = HashCount / 2;
             if (HashCount % 2 > 0) TempBlockSize++;
 
             byte[][] TempBlock = new byte[TempBlockSize][];
 
             int HashIndex = 0;
-            for (int i = 0; i < (int) HashCount / 2; i++) //makes hash from pairs.
+            for (int i = 0; i < HashCount / 2; i++) //makes hash from pairs.
             {
                 TempBlock[i] = InternalHash(HashBlock[HashIndex],HashBlock[HashIndex+1]);
                 HashIndex += 2;
@@ -152,9 +151,8 @@ public class ThexOptimized
         return HashBlock[0];
     }
 
-    private byte[] CompressSmallBlock() throws IOException //compress a small block to hash.
-    {
-        long DataSize = (long) (FilePtr.getChannel().size() - FilePtr.getChannel().position());
+    private byte[] CompressSmallBlock() throws IOException {
+        long DataSize = FilePtr.getChannel().size() - FilePtr.getChannel().position();
 
         int LeafCount = (int) DataSize / (Leaf_Size * 2);
         if (DataSize % (Leaf_Size * 2) > 0) LeafCount++;
@@ -169,19 +167,15 @@ public class ThexOptimized
 
         return CompressHashBlock(SmallBlock,LeafCount); //gets hash from the small block.
     }
-    private byte[] InternalHash(byte[] LeafA,byte[] LeafB) //internal hash.
-    {
+
+    private byte[] InternalHash(byte[] LeafA,byte[] LeafB) {
         byte[] Data = new byte[LeafA.length + LeafB.length + 1];
 
         Data[0] = 0x01; //internal hash mark.
 
         //combines two leafs.
-        for (int i = 0; i < LeafA.length; i++) {
-            Data[i + 1] = LeafA[i];
-        }
-        for (int i = 0; i < LeafB.length; i++) {
-            Data[LeafA.length + 1 + i] = LeafB[i];
-        }
+        System.arraycopy(LeafA, 0, Data, 1, LeafA.length);
+        System.arraycopy(LeafB, 0, Data, LeafA.length + 1, LeafB.length);
 
         //gets tiger hash value for combined leaf hash.
         Tiger TG = new Tiger();
@@ -189,14 +183,11 @@ public class ThexOptimized
         return TG.ComputeHash(Data);
     }
 
-    private byte[] LeafHash(byte[] Raw_Data) //leaf hash.
-    {
+    private byte[] LeafHash(byte[] Raw_Data) {
         byte[] Data = new byte[Raw_Data.length + 1];
 
         Data[0] = 0x00; //leaf hash mark.
-        for (int i = 0; i < Raw_Data.length; i++) {
-            Data[i + 1] = Raw_Data[i];
-        }
+        System.arraycopy(Raw_Data, 0, Data, 1, Raw_Data.length);
 
         //gets tiger hash value for leafs blocks.
         Tiger TG = new Tiger();
@@ -204,12 +195,10 @@ public class ThexOptimized
         return TG.ComputeHash(Data);
     }
 
-    private byte[] ByteExtract(byte[] Raw_Data,int Data_Length) //if we use the extra 0x00 in Raw_Data we will get wrong hash.
-    {
+    private byte[] ByteExtract(byte[] Raw_Data,int Data_Length) {
+    //if we use the extra 0x00 in Raw_Data we will get wrong hash.
         byte[] Data = new byte[Data_Length];
-
-        for (int i = 0; i < Data_Length; i++)
-            Data[i] = Raw_Data[i];
+        System.arraycopy(Raw_Data, 0, Data, 0, Data_Length);
 
         return Data;
     }

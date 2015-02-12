@@ -30,6 +30,7 @@ import java.time.Instant;
 
 
 public class ThexThreaded {
+
     final byte LeafHash = 0x00;
     final byte InternalHash = 0x01;
     final int LeafSize = 1024; // Do not change this value
@@ -151,12 +152,6 @@ public class ThexThreaded {
                 ThreadsList[i].interrupt();
     }
 
-    private static void BlockCopy(byte[]  src, int srcOffset, byte[] dst, int dstOffset, int count) {
-        for (int i = 0; i < count; i++) {
-            dst[dstOffset + i] = src[srcOffset + i];
-        }
-    }
-
     void ProcessLeafs() throws IOException {
         FileInputStream ThreadFilePtr = new FileInputStream(Filename);
         FileBlock ThreadFileBlock = FileParts[Short.valueOf(Thread.currentThread().getName())];
@@ -177,25 +172,25 @@ public class ThexThreaded {
             else
                 DataBlock = new byte[DataBlockSize];
 
-            ThreadFilePtr.read(DataBlock, 0, DataBlock.length); //read block
+            ThreadFilePtr.read(DataBlock, 0, DataBlock.length);
 
             BlockLeafs = DataBlock.length / 1024;
 
             for (i = 0; i < BlockLeafs; i++) {
-                BlockCopy(DataBlock, i * LeafSize, Data, 1, LeafSize);
+                System.arraycopy(DataBlock, i * LeafSize, Data, 1, LeafSize);
 
                 TG.Initialize();
-                TTH[0][((int) LeafIndex++)] = TG.ComputeHash(Data);
+                TTH[0][(int) LeafIndex++] = TG.ComputeHash(Data);
             }
 
             if (i * LeafSize < DataBlock.length) {
                 Data = new byte[DataBlock.length - BlockLeafs * LeafSize + 1];
                 Data[0] = LeafHash;
 
-                BlockCopy(DataBlock, BlockLeafs * LeafSize, Data, 1, (Data.length - 1));
+                System.arraycopy(DataBlock, BlockLeafs * LeafSize, Data, 1, (Data.length - 1));
 
                 TG.Initialize();
-                TTH[0][((int) LeafIndex++)] = TG.ComputeHash(Data);
+                TTH[0][(int) LeafIndex++] = TG.ComputeHash(Data);
 
                 Data = new byte[LeafSize + 1];
                 Data[0] = LeafHash;
@@ -229,8 +224,8 @@ public class ThexThreaded {
 
         Data[0] = InternalHash;
 
-        BlockCopy(LeafA, 0, Data, 1, LeafA.length);
-        BlockCopy(LeafB, 0, Data, LeafA.length + 1, LeafA.length);
+        System.arraycopy(LeafA, 0, Data, 1, LeafA.length);
+        System.arraycopy(LeafB, 0, Data, LeafA.length + 1, LeafA.length);
 
         TG.Initialize();
         TTH[Level][Index] = TG.ComputeHash(Data);

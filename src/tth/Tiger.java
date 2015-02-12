@@ -9,7 +9,6 @@ package tth;
  * The tiger hash class was converted from visual basic code called TigerNet:
  * http://www.hotpixel.net/software.html
  *
- * @author Dion Woolley, woolley.dion@gmail.com
  */
 
 import java.io.UnsupportedEncodingException;
@@ -207,11 +206,11 @@ public class Tiger {
         buf[nBufPos] = ((byte) 1);
         nBufPos++;
         if (56 <= nBufPos) {
-            Arrays.fill(buf, nBufPos, nBufPos + ((int) (64 - nBufPos)), (byte) 0);
+            Arrays.fill(buf, nBufPos, nBufPos + (64 - nBufPos), (byte) 0);
             this.ProcessBlock();
             nBufPos = 0;
         }
-        Arrays.fill(buf, nBufPos, nBufPos + ((int) ((64 - nBufPos) - 8)), (byte) 0);
+        Arrays.fill(buf, nBufPos, nBufPos + ((64 - nBufPos) - 8), (byte) 0);
         Tiger.LongToBytes((this.lLen << 3), buf, 56);
         this.ProcessBlock();
         byte[] result = new byte[24];
@@ -244,7 +243,7 @@ public class Tiger {
         long[] block = this.block;
         byte[] buf = this.buf;
         while (nPos < 64) {
-            block[nI] = ((long) ((((((((((long) buf[(nPos + 7)]) << 56) | ((((long) buf[(nPos + 6)]) & 255L) << 48)) | ((((long) buf[(nPos + 5)]) & 255L) << 40)) | ((((long) buf[(nPos + 4)]) & 255L) << 32)) | ((((long) buf[(nPos + 3)]) & 255L) << 24)) | ((((long) buf[(nPos + 2)]) & 255L) << 16)) | ((((long) buf[(nPos + 1)]) & 255L) << 8)) | (((long) buf[nPos]) & 255L)));
+            block[nI] = ((((((((((long) buf[(nPos + 7)]) << 56) | ((((long) buf[(nPos + 6)]) & 255L) << 48)) | ((((long) buf[(nPos + 5)]) & 255L) << 40)) | ((((long) buf[(nPos + 4)]) & 255L) << 32)) | ((((long) buf[(nPos + 3)]) & 255L) << 24)) | ((((long) buf[(nPos + 2)]) & 255L) << 16)) | ((((long) buf[(nPos + 1)]) & 255L) << 8)) | (((long) buf[nPos]) & 255L));
             nPos += 8;
             nI++;
         }
@@ -256,8 +255,8 @@ public class Tiger {
         c ^= x;
         int ch = ((int) (c >> 32));
         int cl = ((int) c);
-        this.a -= (((T[(cl & 255)] ^ T[((int) (((cl >> 16) & 255) + 256))]) ^ T[((ch & 255) + 512)]) ^ T[((int) (((ch >> 16) & 255) + 768))]);
-        this.b += (((T[(((cl >> 8) & 255) + 768)] ^ T[((int) (((cl >> 24) & 255) + 512))]) ^ T[(((ch >> 8) & 255) + 256)]) ^ T[((int) ((ch >> 24) & 255))]);
+        this.a -= (((T[(cl & 255)] ^ T[(((cl >> 16) & 255) + 256)]) ^ T[((ch & 255) + 512)]) ^ T[(((ch >> 16) & 255) + 768)]);
+        this.b += (((T[(((cl >> 8) & 255) + 768)] ^ T[(((cl >> 24) & 255) + 512)]) ^ T[(((ch >> 8) & 255) + 256)]) ^ T[((ch >> 24) & 255)]);
         this.b *= ((long) mul);
         this.c = c;
     }
@@ -267,8 +266,8 @@ public class Tiger {
         a ^= x;
         int ah = ((int) (a >> 32));
         int al = ((int) a);
-        this.b -= (((T[(al & 255)] ^ T[((int) (((al >> 16) & 255) + 256))]) ^ T[((ah & 255) + 512)]) ^ T[((int) (((ah >> 16) & 255) + 768))]);
-        this.c += (((T[(((al >> 8) & 255) + 768)] ^ T[((int) (((al >> 24) & 255) + 512))]) ^ T[(((ah >> 8) & 255) + 256)]) ^ T[((int) ((ah >> 24) & 255))]);
+        this.b -= (((T[(al & 255)] ^ T[(((al >> 16) & 255) + 256)]) ^ T[((ah & 255) + 512)]) ^ T[(((ah >> 16) & 255) + 768)]);
+        this.c += (((T[(((al >> 8) & 255) + 768)] ^ T[(((al >> 24) & 255) + 512)]) ^ T[(((ah >> 8) & 255) + 256)]) ^ T[((ah >> 24) & 255)]);
         this.c *= ((long) mul);
         this.a = a;
     }
@@ -278,8 +277,8 @@ public class Tiger {
         b ^= x;
         int bh = ((int) (b >> 32));
         int bl = ((int) b);
-        this.c -= (((T[(bl & 255)] ^ T[((int) (((bl >> 16) & 255) + 256))]) ^ T[((bh & 255) + 512)]) ^ T[((int) (((bh >> 16) & 255) + 768))]);
-        this.a += (((T[(((bl >> 8) & 255) + 768)] ^ T[((int) (((bl >> 24) & 255) + 512))]) ^ T[(((bh >> 8) & 255) + 256)]) ^ T[((int) ((bh >> 24) & 255))]);
+        this.c -= (((T[(bl & 255)] ^ T[(((bl >> 16) & 255) + 256)]) ^ T[((bh & 255) + 512)]) ^ T[(((bh >> 16) & 255) + 768)]);
+        this.a += (((T[(((bl >> 8) & 255) + 768)] ^ T[(((bl >> 24) & 255) + 512)]) ^ T[(((bh >> 8) & 255) + 256)]) ^ T[((bh >> 24) & 255)]);
         this.a *= ((long) mul);
         this.b = b;
     }
@@ -320,24 +319,21 @@ public class Tiger {
 
         HashCore(buffer, 0, buffer.length);
         HashValue = HashFinal();
-        // assume that deepcopy
-        byte[] Tmp = new byte[HashValue.length];
-        for (int i = 0; i < HashValue.length; i++) {
-           Tmp[i] = HashValue[i];
-        }
+        byte[] tmp = new byte[HashValue.length];
+        System.arraycopy(HashValue, 0, tmp, 0, HashValue.length);
 
         Initialize();
-        return (Tmp);
+        return (tmp);
     }
 
     public static void main(String[] args) throws UnsupportedEncodingException {
-        byte[] hash = null;
-        int nI = 0;
-        String TEST_DATA = null;
-        byte[] TEST_HASH = null;
-        Tiger tg = null;
-        int _Vb_t_i4_0 = 0;
-        byte[] _Vb_t_array_0 = null;
+        byte[] hash;
+        int nI;
+        String TEST_DATA;
+        byte[] TEST_HASH;
+        Tiger tg;
+        int _Vb_t_i4_0;
+        byte[] _Vb_t_array_0;
         TEST_DATA = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
         _Vb_t_array_0 = new byte[]{((byte) 15), ((byte) 123), ((byte) 249), ((byte) 161), ((byte) 155), ((byte) 156), ((byte) 88), ((byte) 242), ((byte) 183), ((byte) 97),
                 ((byte) 13), ((byte) 247), ((byte) 232), ((byte) 79), ((byte) 10), ((byte) 195), ((byte) 167), ((byte) 28), ((byte) 99), ((byte) 30),

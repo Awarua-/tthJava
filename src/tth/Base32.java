@@ -32,14 +32,14 @@ public class Base32 {
 
 	/**
      *  
-	 * @param bytes
-	 * @return
+	 * @param bytes to convert to String
+	 * @return String
 	 */
 	static public String encode(final byte[] bytes)
     {
-        int i =0, index = 0, digit = 0;
+        int i = 0, index = 0, digit;
         int currByte, nextByte;
-        StringBuffer base32 = new StringBuffer((bytes.length+7)*8/5);
+        StringBuilder base32 = new StringBuilder((bytes.length+7)*8/5);
 
         while(i < bytes.length)
         {
@@ -73,8 +73,8 @@ public class Base32 {
     }
 
     /**
-	 * @param base32
-	 * @return
+	 * @param base32 String to convert to bytes
+	 * @return bytes
 	 */
 	static public byte[] decode(final String base32)
     {
@@ -131,10 +131,10 @@ public class Base32 {
         System.out.println(" Original: "+args[0]);
         byte[] decoded = Base32.decode(args[0]);
         System.out.print  ("      Hex: ");
-        for(int i = 0; i < decoded.length ; i++) {
-            int b = decoded[i];
-            if (b<0) b+=256;
-            System.out.print((Integer.toHexString(b+256)).substring(1));
+        for (byte aDecoded : decoded) {
+            int b = aDecoded;
+            if (b < 0) b += 256;
+            System.out.print((Integer.toHexString(b + 256)).substring(1));
         }
         System.out.println();
         System.out.println("Reencoded: "+Base32.encode(decoded));
