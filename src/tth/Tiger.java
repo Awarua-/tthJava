@@ -24,7 +24,7 @@ public class Tiger {
 
     private long lLen;
     private int nBufPos;
-    protected static final long[] T = {
+    private static final long[] T = {
             192161084409973854L, -6034178070669973268L, 8272369121297300691L, 7854730284916899642L, -3631738584360316525L, 8463286011307239906L, -5664346993730092093L, 5082381371487377520L, -1536603760329757466L, -4232985935611735204L,
             5541490850629862524L, 766444128913191948L, 1204553577021685498L, -4121719295987045526L, 1401289229890216703L, 1893918052108309022L, 5461170853188208586L, 2807403890869420487L, -8822417684582283338L, 5699452412975025298L,
             -2914262034798377397L, -8199292901130911363L, 7624427211800470465L, -5330070367527189138L, 9043806901924967914L, 7231827479902542914L, -4667804575905660192L, 6875646691050945796L, -954047427515838778L, 7786398710221814956L,
@@ -130,7 +130,7 @@ public class Tiger {
             -3650491565905270770L, -4529053496248414107L, -4021111997381021802L, -4350414089199835873L
     };
 
-    protected byte[] HashValue;
+    private byte[] HashValue;
 
     public Tiger() {
         this.buf = new byte[64];
@@ -138,7 +138,7 @@ public class Tiger {
         this.Initialize();
     }
 
-    public void Compress() {
+    private void Compress() {
         long aa = this.a;
         long bb = this.b;
         long cc = this.c;
@@ -174,7 +174,7 @@ public class Tiger {
         this.c += cc;
     }
 
-    protected void HashCore(byte[] data, int nStart, int nSize) {
+    private void HashCore(byte[] data, int nStart, int nSize) {
         int nToCopy;
         this.lLen += ((long) nSize);
         byte[] buf = this.buf;
@@ -200,7 +200,7 @@ public class Tiger {
         this.nBufPos = nBufPos;
     }
 
-    protected byte[] HashFinal() {
+    private byte[] HashFinal() {
         int nBufPos = this.nBufPos;
         byte[] buf = this.buf;
         buf[nBufPos] = ((byte) 1);
@@ -220,7 +220,7 @@ public class Tiger {
         return result;
     }
 
-    public void Initialize() {
+    void Initialize() {
         this.a = 81985529216486895L;
         this.b = -81985529216486896L;
         this.c = -1110518062304271993L;
@@ -228,7 +228,7 @@ public class Tiger {
         this.lLen = 0L;
     }
 
-    static void LongToBytes(long lVal, byte[] buf, int nIdx) {
+    private static void LongToBytes(long lVal, byte[] buf, int nIdx) {
         int nEnd = (nIdx + 8);
         while (nIdx < nEnd) {
             buf[nIdx] = ((byte) (lVal & 255L));
@@ -237,7 +237,7 @@ public class Tiger {
         }
     }
 
-    public void ProcessBlock() {
+    private void ProcessBlock() {
         int nI = 0;
         int nPos = 0;
         long[] block = this.block;
@@ -250,7 +250,7 @@ public class Tiger {
         this.Compress();
     }
 
-    public void RoundABC(long x, int mul) {
+    private void RoundABC(long x, int mul) {
         long c = this.c;
         c ^= x;
         int ch = ((int) (c >> 32));
@@ -261,7 +261,7 @@ public class Tiger {
         this.c = c;
     }
 
-    public void RoundBCA(long x, int mul) {
+    private void RoundBCA(long x, int mul) {
         long a = this.a;
         a ^= x;
         int ah = ((int) (a >> 32));
@@ -272,7 +272,7 @@ public class Tiger {
         this.a = a;
     }
 
-    public void RoundCAB(long x, int mul) {
+    private void RoundCAB(long x, int mul) {
         long b = this.b;
         b ^= x;
         int bh = ((int) (b >> 32));
@@ -283,7 +283,7 @@ public class Tiger {
         this.b = b;
     }
 
-    public void Schedule(long[] x) {
+    private void Schedule(long[] x) {
         int _Vb_t_i4_0 = 0;
         x[_Vb_t_i4_0] -= (x[7] ^ -6510615555426900571L);
         x[1] = (x[1] ^ x[0]);
@@ -313,7 +313,7 @@ public class Tiger {
         x[_Vb_t_i4_0] -= (x[6] ^ 81985529216486895L);
     }
 
-    public byte[] ComputeHash(byte[] buffer) {
+    byte[] ComputeHash(byte[] buffer) {
         // Do some validation
         if (buffer == null) throw new IllegalArgumentException("buffer");
 

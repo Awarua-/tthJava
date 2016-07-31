@@ -22,15 +22,15 @@ import java.time.Instant;
 
 public class ThexOptimized {
 
-    final   int        ZERO_BYTE_FILE  = 0;    //file with no data.
-    final   int        Block_Size      = 64;   //64k
-    final   int        Leaf_Size       = 1024; //1k - don't change this.
+    private final   int        ZERO_BYTE_FILE  = 0;    //file with no data.
+    private final   int        Block_Size      = 64;   //64k
+    private final   int        Leaf_Size       = 1024; //1k - don't change this.
 
     private int        Leaf_Count; //number of leafs.
     private byte[][]   HashValues; //array for hash values.
     private FileInputStream FilePtr;    //dest file stream pointer.
 
-    public byte[] GetTTH(String Filename) throws IOException {
+    private byte[] GetTTH(String Filename) throws IOException {
         byte[] TTH;
 
         try
@@ -220,7 +220,7 @@ public class ThexOptimized {
                     end = Instant.now();
                     System.out.println("Finished hashing file: " + file.getName());
 
-                    System.out.println("THH: " + Base32.encode(result));
+                    System.out.println("TTH: " + Base32.encode(result));
                     System.out.println("TimeTaken: " + Duration.between(start, end));
 
                 } catch (IOException e) {

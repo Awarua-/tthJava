@@ -31,23 +31,23 @@ import java.time.Instant;
 
 public class ThexThreaded {
 
-    final byte LeafHash = 0x00;
-    final byte InternalHash = 0x01;
-    final int LeafSize = 1024; // Do not change this value
-    final int DataBlockSize = LeafSize * 1024; // 1 MB
-    int ThreadCount = 4;
-    final int ZERO_BYTE_FILE = 0;
+    private final byte LeafHash = 0x00;
+    private final byte InternalHash = 0x01;
+    private final int LeafSize = 1024; // Do not change this value
+    private final int DataBlockSize = LeafSize * 1024; // 1 MB
+    private int ThreadCount = 4;
+    private final int ZERO_BYTE_FILE = 0;
 
-    public byte[][][] TTH;
-    public int LevelCount;
-    String Filename;
-    int LeafCount;
-    FileInputStream FilePtr;
+    private byte[][][] TTH;
+    private int LevelCount;
+    private String Filename;
+    private int LeafCount;
+    private FileInputStream FilePtr;
 
-    FileBlock[] FileParts = new FileBlock[ThreadCount];
-    Thread[] ThreadsList = new Thread[ThreadCount];
+    private FileBlock[] FileParts = new FileBlock[ThreadCount];
+    private Thread[] ThreadsList = new Thread[ThreadCount];
 
-    public byte[] GetTTH_Value(String Filename) throws IOException {
+    private byte[] GetTTH_Value(String Filename) throws IOException {
         GetTTH(Filename);
         return TTH[LevelCount - 1][0];
     }
@@ -64,18 +64,18 @@ public class ThexThreaded {
                 CompressTree();
             }
         } catch (Exception e) {
-            System.out.println("error while trying to get TTH: " + e.getMessage());
+            System.err.println("error while trying to get TTH: " + e.getMessage());
             StopThreads();
         }
 
         if (FilePtr != null) FilePtr.close();
     }
 
-    void OpenFile() throws FileNotFoundException {
+    private void OpenFile() throws FileNotFoundException {
         FilePtr = new FileInputStream(Filename); //,DataBlockSize);
     }
 
-    boolean Initialize() throws IOException {
+    private boolean Initialize() throws IOException {
         if (FilePtr.getChannel().size() == ZERO_BYTE_FILE) {
             Tiger TG = new Tiger();
 
@@ -107,7 +107,7 @@ public class ThexThreaded {
         return true;
     }
 
-    void SplitFile() throws IOException {
+    private void SplitFile() throws IOException {
         long LeafsInPart = LeafCount / ThreadCount;
 
         // check if file is bigger then 1 MB or don't use threads
@@ -119,7 +119,7 @@ public class ThexThreaded {
         FileParts[ThreadCount - 1].End = FilePtr.getChannel().size();
     }
 
-    void StartThreads() throws InterruptedException {
+    private void StartThreads() throws InterruptedException {
         boolean ThreadsAreWorking;
         for (int i = 0; i < ThreadCount; i++) {
             ThreadsList[i] = new Thread(() -> {
@@ -146,13 +146,13 @@ public class ThexThreaded {
         } while (ThreadsAreWorking);
     }
 
-    void StopThreads() {
+    private void StopThreads() {
         for (int i = 0; i < ThreadCount; i++)
             if (ThreadsList[i] != null && ThreadsList[i].isAlive())
                 ThreadsList[i].interrupt();
     }
 
-    void ProcessLeafs() throws IOException {
+    private void ProcessLeafs() throws IOException {
         FileInputStream ThreadFilePtr = new FileInputStream(Filename);
         FileBlock ThreadFileBlock = FileParts[Short.valueOf(Thread.currentThread().getName())];
         Tiger TG = new Tiger();
@@ -198,7 +198,7 @@ public class ThexThreaded {
         }
     }
 
-    void CompressTree() {
+    private void CompressTree() {
         int InternalLeafCount;
         int Level = 0, i, LeafIndex;
 
@@ -218,7 +218,7 @@ public class ThexThreaded {
         }
     }
 
-    void ProcessInternalLeaf(int Level, int Index, byte[] LeafA, byte[] LeafB) {
+    private void ProcessInternalLeaf(int Level, int Index, byte[] LeafA, byte[] LeafB) {
         Tiger TG = new Tiger();
         byte[] Data = new byte[LeafA.length + LeafB.length + 1];
 
@@ -231,10 +231,10 @@ public class ThexThreaded {
         TTH[Level][Index] = TG.ComputeHash(Data);
     }
 
-    class FileBlock {
-        public long Start, End;
+    private class FileBlock {
+        long Start, End;
 
-        public FileBlock(long Start, long End) {
+        FileBlock(long Start, long End) {
             this.Start = Start;
             this.End = End;
         }
@@ -260,7 +260,7 @@ public class ThexThreaded {
                     end = Instant.now();
 
                     System.out.println("Finished hashing file: " + file.getName());
-                    System.out.println("THH: " + Base32.encode(result));
+                    System.out.println("TTH: " + Base32.encode(result));
                     System.out.println("TimeTaken: " + Duration.between(start, end));
 
                 } catch (IOException e) {

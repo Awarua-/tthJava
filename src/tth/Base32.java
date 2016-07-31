@@ -35,7 +35,7 @@ public class Base32 {
 	 * @param bytes to convert to String
 	 * @return String
 	 */
-	static public String encode(final byte[] bytes)
+	static String encode(final byte[] bytes)
     {
         int i = 0, index = 0, digit;
         int currByte, nextByte;
@@ -76,7 +76,7 @@ public class Base32 {
 	 * @param base32 String to convert to bytes
 	 * @return bytes
 	 */
-	static public byte[] decode(final String base32)
+	private static byte[] decode(final String base32)
     {
         int    i, index, lookup, offset, digit;
         byte[] bytes = new byte[base32.length()*5/8];
